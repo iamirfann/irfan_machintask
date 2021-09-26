@@ -2,6 +2,7 @@ from django.shortcuts import render
 
 # from authn import serializers
 from django.shortcuts import render
+from django.views.decorators.csrf import csrf_exempt
 from rest_framework import viewsets
 from django.shortcuts import render, redirect
 # from .serializers import RegisterSerializer
@@ -14,7 +15,7 @@ from rest_framework.response import Response
 # Create your views here.
 
 class RegisterApiView(APIView):
-
+    @csrf_exempt
     def post(self, request):
         req = request.data
         username = req['username']
@@ -31,17 +32,15 @@ class RegisterApiView(APIView):
             user.save()
             return Response({'success': 'admin registered successfully'})
         elif int(role) == 2:
-            user = User.objects.create_superuser(username=username, email=email, password=password)
+            user = User.objects.create_user(username=username, email=email, password=password)
             user.save()
             user.set_password(password)
             user.save()
             return Response({'success': 'user registered successfully'})
-        # print(data)
-        # return render(request, "authn/register.html")
 
 
 class LoginApiView(APIView):
-
+    @csrf_exempt
     def post(self, request):
         req = request.data
         username = req['username']
@@ -54,9 +53,11 @@ class LoginApiView(APIView):
             return Response({'success': 'login successfull'})
 
 
-def logoutUser(request):
-    logout(request)
-    return Response({'success': 'logout successfull'})
+class LogoutApiView(APIView):
+    @csrf_exempt
+    def post(self, request):
+        logout(request)
+        return Response({'success': 'logout successfull'})
 
 
 
